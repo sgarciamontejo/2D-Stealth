@@ -1,0 +1,70 @@
+[gd_scene load_steps=6 format=3 uid="uid://b51wbcihn8kbb"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_svjus"]
+[ext_resource type="Texture2D" uid="uid://brra0t82pcmuk" path="res://icon.svg" id="2_46jwj"]
+[ext_resource type="Script" path="res://enemy.gd" id="3_dfj8n"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jxnks"]
+size = Vector2(130, 128)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_i3krk"]
+radius = 100.0
+
+[node name="Main" type="Node"]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(-385, 0)
+script = ExtResource("1_svjus")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+texture = ExtResource("2_46jwj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_jxnks")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+zoom = Vector2(0.45, 0.45)
+limit_left = -1280
+limit_top = -720
+limit_right = 1280
+limit_bottom = 720
+
+[node name="Enemy" type="CharacterBody2D" parent="."]
+position = Vector2(599, 4)
+motion_mode = 1
+script = ExtResource("3_dfj8n")
+
+[node name="Sprite2D" type="Sprite2D" parent="Enemy"]
+modulate = Color(1, 0.49262, 0.440398, 1)
+self_modulate = Color(1, 0.714868, 0.669018, 1)
+light_mask = 3
+texture = ExtResource("2_46jwj")
+
+[node name="Hitbox" type="CollisionShape2D" parent="Enemy"]
+visible = false
+shape = SubResource("RectangleShape2D_jxnks")
+
+[node name="Vision" type="Area2D" parent="Enemy"]
+rotation = -1.5708
+
+[node name="LineOfSight" type="CollisionPolygon2D" parent="Enemy/Vision"]
+visibility_layer = 3
+build_mode = 1
+polygon = PackedVector2Array(0, 0, -300, -500, 300, -500)
+one_way_collision_margin = 0.0
+
+[node name="Peripheral" type="CollisionShape2D" parent="Enemy/Vision"]
+visible = false
+shape = SubResource("CircleShape2D_i3krk")
+disabled = true
+one_way_collision_margin = 0.0
+
+[node name="VisionTimer" type="Timer" parent="Enemy"]
+wait_time = 0.25
+autostart = true
+
+[node name="VisionRaycast" type="RayCast2D" parent="Enemy"]
+rotation = -1.5708
+target_position = Vector2(0, -500)
+
+[connection signal="timeout" from="Enemy/VisionTimer" to="Enemy" method="_on_vision_timer_timeout"]
